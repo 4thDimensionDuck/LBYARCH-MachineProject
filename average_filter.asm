@@ -1,7 +1,6 @@
 %include "io.inc"
 
-section .data
-
+segment .data
 ; Input Image
 input dd 1, 4, 0, 1, 3, 1, 2, 2, 4, 2, 2, 3, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 2, 2, 2, 5, 3, 1, 2, 5, 1, 1, 4, 2, 3, 0
 
@@ -20,13 +19,14 @@ in_x dd 0
 in_y dd 0
 
 ; Current Element
-cur_element dd 0
+in_index dd 0
+out_index dd 0
 
 ; Sample Matrix Indices
 sm_x dd 0
 sm_y dd 0
 
-section .text
+segment .text
 global main
 main:
     mov ebp, esp; for correct debugging
@@ -45,53 +45,59 @@ main:
             
             mov edx, 0
             
+            lea eax, [input]
+            ;lea ebx, [output]
+            
+            ; Calculates offset for index
+            mov ecx, [img_w]    ;input[ ( img_w * i + j ) * 4 ]
+            imul ecx, esi       ;img_w * i
+            add ecx, edi        ;img_w * i + j
+            imul ecx, 4         ;( (img_w * i) + j ) * 4
+            add eax, ecx
+            ;add ebx, ecx
+            
+            ; Both input and output are no pointing at the same index
+            mov [in_index], eax
+            ;mov [out_index], ebx
+            
+            xor eax, eax
+            xor ebx, ebx
+            
             start_if:
             ; if x <= border - 1
             mov eax, [sample_sh]
             dec eax
             cmp edi, eax
-            jle end_if_true
+            jle if_false
             
             ; if x >= img_w - border - 1 
             mov eax, [img_w]
             ;dec eax
             sub eax, [sample_sh]
             cmp edi, eax
-            jge end_if_true
+            jge if_false
             
             ; if y <= border - 1
             mov eax, [sample_sh]
             dec eax
             cmp esi, eax
-            jle end_if_true
+            jle if_false
             
             ; if y >= img_h - border - 1
             mov eax, [img_h]
             ;dec eax
             sub eax, [sample_sh]
             cmp esi, eax
-            jge end_if_true
+            jge if_false
             
             jmp if_true
             
             if_true:                
-                mov eax, input
-                
-                ; Calculates offset for index
-                mov ebx, edi    ; j
-                imul ebx, 4     ; j * 4
-                add eax, ebx    ; input[j*4]
-                
-                mov ebx, esi    ; i
-                imul ebx, ecx   ; i * img_w
-                imul ebx, 4     ; i * img_w * 4
-                add eax, ebx    ; input[j + i * img_w * 4]
                 
                 mov [in_x], edi
                 mov [in_y], esi
-                mov [cur_element], eax
-                
-                ; TODO ITERATE THROUGH SAMPLE WINDOW
+
+                ; Sample Window Iteration and Summation
                 mov ebx, [sample_sh]
                 neg ebx
                 mov esi, ebx ;sm_y
@@ -100,7 +106,7 @@ main:
                     neg ebx
                     mov edi, ebx ; sm_x
                     s_row_loop:
-                        mov eax, [cur_element]
+                        mov eax, [in_index]
                     
                         ; input_image[(in_x + sm_x * 4) + (in_y + sm_y * img_w * 4)]
                     
@@ -114,10 +120,7 @@ main:
                         imul ebx, 4
                         add eax, ebx
                         
-                        
                         add edx, [eax]
-                        ;PRINT_DEC 4, [eax]
-                        ;PRINT_STRING " "
                     
                         inc edi
                         mov ebx, [sample_s]
@@ -126,8 +129,6 @@ main:
                         jl s_row_loop
                         
                     s_row_loop_end:
-                    
-                    ;NEWLINE
                     
                     inc esi
                     mov ebx, [sample_s]
@@ -139,12 +140,6 @@ main:
                 
                 mov edi, [in_x]
                 mov esi, [in_y]
-                
-                ; Debug
-                ;PRINT_DEC 4, edx
-                ;PRINT_DEC 4, [eax]
-                ;PRINT_STRING " "
-                ;NEWLINE
                 
                 xor eax, eax
                 
@@ -160,10 +155,36 @@ main:
                 
                 div ebx
                 
+                ; EAX has Averaged Value
+                
+                ;mov ebx, [out_index]
+                ;mov [ebx], eax
+                
+                ; TODO: Instead of Printing, Place the Averaged Value in the Output Matrix
                 PRINT_DEC 4, eax
                 PRINT_STRING " "
             
                 jmp end_if_true
+            
+            if_false:
+                
+                ; TODO: Copy input to output
+                
+                mov eax, [in_index]
+                ;mov ebx, [out_index]
+                ;mov ecx, [eax]    ; Move the value in input index
+                ;mov [ebx], ecx    ; to the output index
+                
+                ; Clear eax, ebx
+                ;xor eax, eax
+                ;xor ebx, ebx
+                
+                ; Debug
+                PRINT_DEC 4, [eax]
+                PRINT_STRING " "
+                
+                jmp end_if_true
+            
             end_if_true:
             
             ; Increment in_x
@@ -176,7 +197,7 @@ main:
         
         m_row_loop_end:
         
-        ; Debug
+        ; TODO: Remove Debug
         NEWLINE
         
         inc esi

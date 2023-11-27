@@ -13,7 +13,7 @@ int main() {
 		1, 1, 4, 2, 3, 0 
 	};
 
-	int out_image[sizeof(in_image)];
+	int out_image[sizeof(in_image)/sizeof(in_image[0])];
 
 	// Parameters
 	int img_w = 6, // Image Width
@@ -23,9 +23,9 @@ int main() {
 	average_filter( in_image, out_image, img_w, img_h, sample_size );
 
 	printf("Output Image: \n");
-	for ( int i = 0; i < img_x; i++ ) {
-		for ( int j = 0; j < img_y; j++ ) {
-			printf("%d ", out_image[i+j]);
+	for ( int i = 0; i < img_h; i++ ) {
+		for ( int j = 0; j < img_w; j++ ) {
+			printf("%d ", out_image[(img_w * i + j)]);
 		}
 		printf("\n");
 	}

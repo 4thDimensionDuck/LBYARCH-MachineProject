@@ -19,6 +19,9 @@ sample_sh dd 0
 in_x dd 0
 in_y dd 0
 
+; Current Element
+cur_element dd 0
+
 ; Sample Matrix Indices
 sm_x dd 0
 sm_y dd 0
@@ -83,26 +86,53 @@ main:
                 
                 mov [in_x], edi
                 mov [in_y], esi
+                mov [cur_element], eax
+                
+                ; Sum is EDX
+                mov edx, 0
                 
                 ; TODO ITERATE THROUGH SAMPLE WINDOW
-                mov esi, 0
+                mov ebx, [sample_sh]
+                neg ebx
+                mov esi, ebx ;sm_y
                 s_col_loop:
-                    mov edi, 0
+                    mov ebx, [sample_sh]
+                    neg ebx
+                    mov edi, ebx ; sm_x
                     s_row_loop:
+                        mov eax, [cur_element]
                     
-                        PRINT_DEC 4, [eax]
-                        PRINT_STRING " "
+                        ; input_image[(in_x + sm_x * 4) + (in_y + sm_y * img_w * 4)]
+                    
+                        ; sm_x * 4
+                        mov ebx, edi
+                        imul ebx, 4
+                        add eax, ebx
+                        
+                        mov ebx, esi
+                        imul ebx, [img_w]
+                        imul ebx, 4
+                        add eax, ebx
+                        
+                        
+                        add edx, [eax]
+                        ;PRINT_DEC 4, [eax]
+                        ;PRINT_STRING " "
                     
                         inc edi
-                        cmp edi, [sample_s]
+                        mov ebx, [sample_s]
+                        dec ebx
+                        cmp edi, ebx
                         jl s_row_loop
                         
                     s_row_loop_end:
                     
-                    NEWLINE
+                    ;NEWLINE
                     
                     inc esi
-                    cmp esi, [sample_s]
+                    mov ebx, [sample_s]
+                    dec ebx
+                    cmp esi, ebx
                     jl s_col_loop
                     
                 s_col_loop_end:
@@ -110,9 +140,14 @@ main:
                 mov edi, [in_x]
                 mov esi, [in_y]
                 
+                mov eax, edx
+                mov edx, 0
+  
+                PRINT_DEC 4, eax
+                
                 ; Debug
                 ;PRINT_DEC 4, [eax]
-                ;PRINT_STRING " "
+                PRINT_STRING " "
             
                 jmp end_if_true
             end_if_true:
@@ -128,7 +163,7 @@ main:
         m_row_loop_end:
         
         ; Debug
-        ;NEWLINE
+        NEWLINE
         
         inc esi
         mov [in_y], esi

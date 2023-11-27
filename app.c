@@ -35,7 +35,7 @@ int main() {
 	printf("Output Image: \n");
 	for ( int i = 0; i < img_h; i++ ) {
 		for ( int j = 0; j < img_w; j++ ) {
-			printf("%-4d", in_image[(img_w * i + j)]);
+			printf("%-4d", out_image[(img_w * i + j)]);
 		}
 		printf("\n");
 	}

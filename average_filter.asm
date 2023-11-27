@@ -43,6 +43,8 @@ main:
         mov edi, 0 ;in_x/column counter    
         m_col_loop:    
             
+            mov edx, 0
+            
             start_if:
             ; if x <= border - 1
             mov eax, [sample_sh]
@@ -52,6 +54,7 @@ main:
             
             ; if x >= img_w - border - 1 
             mov eax, [img_w]
+            ;dec eax
             sub eax, [sample_sh]
             cmp edi, eax
             jge end_if_true
@@ -64,7 +67,7 @@ main:
             
             ; if y >= img_h - border - 1
             mov eax, [img_h]
-            dec eax
+            ;dec eax
             sub eax, [sample_sh]
             cmp esi, eax
             jge end_if_true
@@ -87,9 +90,6 @@ main:
                 mov [in_x], edi
                 mov [in_y], esi
                 mov [cur_element], eax
-                
-                ; Sum is EDX
-                mov edx, 0
                 
                 ; TODO ITERATE THROUGH SAMPLE WINDOW
                 mov ebx, [sample_sh]
@@ -140,13 +140,27 @@ main:
                 mov edi, [in_x]
                 mov esi, [in_y]
                 
-                mov eax, edx
-                mov edx, 0
-  
-                PRINT_DEC 4, eax
-                
                 ; Debug
+                ;PRINT_DEC 4, edx
                 ;PRINT_DEC 4, [eax]
+                ;PRINT_STRING " "
+                ;NEWLINE
+                
+                xor eax, eax
+                
+                mov eax, edx
+                xor edx, edx
+                
+                mov ebx, [sample_s]
+                imul ebx, ebx
+                mov ecx, ebx
+                sar ecx, 1
+                
+                add eax, ecx
+                
+                div ebx
+                
+                PRINT_DEC 4, eax
                 PRINT_STRING " "
             
                 jmp end_if_true

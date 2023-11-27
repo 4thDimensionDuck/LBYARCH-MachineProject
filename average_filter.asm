@@ -81,16 +81,43 @@ main:
                 imul ebx, 4     ; i * img_w * 4
                 add eax, ebx    ; input[j + i * img_w * 4]
                 
+                mov [in_x], edi
+                mov [in_y], esi
+                
                 ; TODO ITERATE THROUGH SAMPLE WINDOW
+                mov esi, 0
+                s_col_loop:
+                    mov edi, 0
+                    s_row_loop:
+                    
+                        PRINT_DEC 4, [eax]
+                        PRINT_STRING " "
+                    
+                        inc edi
+                        cmp edi, [sample_s]
+                        jl s_row_loop
+                        
+                    s_row_loop_end:
+                    
+                    NEWLINE
+                    
+                    inc esi
+                    cmp esi, [sample_s]
+                    jl s_col_loop
+                    
+                s_col_loop_end:
+                
+                mov edi, [in_x]
+                mov esi, [in_y]
                 
                 ; Debug
-                PRINT_DEC 4, [eax]
-                PRINT_STRING " "
+                ;PRINT_DEC 4, [eax]
+                ;PRINT_STRING " "
             
                 jmp end_if_true
-            
             end_if_true:
             
+            ; Increment in_x
             inc edi
             mov [in_x], edi
             
@@ -101,7 +128,7 @@ main:
         m_row_loop_end:
         
         ; Debug
-        NEWLINE
+        ;NEWLINE
         
         inc esi
         mov [in_y], esi

@@ -20,6 +20,16 @@ int main() {
 		img_h = 6, // Image Height
 		sample_size = 3; // Sample Window Height and Width
 
+	printf("Input Image: \n");
+	for ( int i = 0; i < img_h; i++ ) {
+		for ( int j = 0; j < img_w; j++ ) {
+			printf("%d ", in_image[(img_w * i + j)]);
+		}
+		printf("\n");
+	}
+	
+	printf("\n");
+
 	average_filter( in_image, out_image, img_w, img_h, sample_size );
 
 	printf("Output Image: \n");
